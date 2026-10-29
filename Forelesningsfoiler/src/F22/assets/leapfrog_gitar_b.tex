@@ -1,0 +1,42 @@
+\begin{tikzpicture}[
+  x=0.92cm, y=1cm, >={Stealth[length=2mm]},
+  init/.style={circle, draw=blue!70!black, fill=blue!25, inner sep=0pt, minimum size=2.6mm},
+  start/.style={circle, draw=green!45!black, fill=green!30, inner sep=0pt, minimum size=2.6mm},
+  leap/.style={circle, draw=orange!85!black, fill=orange!35, inner sep=0pt, minimum size=2.6mm},
+  rand/.style={rectangle, draw=red!70!black, fill=red!30, inner sep=0pt, minimum size=2.6mm},
+  stencilS/.style={->, thick, green!45!black, shorten >=1.6pt, shorten <=1.6pt},
+  stencilL/.style={->, thick, orange!85!black, shorten >=1.6pt, shorten <=1.6pt},
+]
+\def\dt{0.95}
+\foreach \n in {0,...,3} \draw[gray!30] (0,\n*\dt) -- (9,\n*\dt);
+\foreach \i in {0,...,9} {
+  \draw[gray!30] (\i,0) -- (\i,3*\dt+0.25);
+  \node[gray!70, font=\scriptsize] at (\i,3*\dt+0.5) {$\vdots$};
+}
+\draw[->] (-0.55,-0.45) -- (9.55,-0.45) node[right] {$x$};
+\draw[->] (-0.55,-0.45) -- (-0.55,3*\dt+0.75) node[above] {$t$};
+\foreach \i in {0,...,9} \node[below, font=\scriptsize] at (\i,-0.45) {$x_{\i}$};
+\foreach \n in {0,...,3} \node[left, font=\scriptsize] at (-0.55,\n*\dt) {$t_{\n}$};
+\foreach \i in {1,...,8} {
+  \node[init]  (P\i-0) at (\i,0) {};
+  \node[start] (P\i-1) at (\i,\dt) {};
+  \node[leap]  (P\i-2) at (\i,2*\dt) {};
+  \node[leap]  (P\i-3) at (\i,3*\dt) {};
+}
+\foreach \n in {0,...,3} { \node[rand] (P0-\n) at (0,\n*\dt) {}; \node[rand] (P9-\n) at (9,\n*\dt) {}; }
+\foreach \j in {1,2,3} \draw[stencilS] (P\j-0) -- (P2-1);
+\node[above left=0pt and -2pt, font=\scriptsize, green!45!black] at (P2-1) {$U_2^1$};
+\foreach \j in {5,6,7} \draw[stencilL] (P\j-2) -- (P6-3);
+\draw[stencilL] (P6-1) to[bend right=40] (P6-3);
+\node[above right=0pt and -2pt, font=\scriptsize, orange!85!black] at (P6-3) {$U_6^3$};
+\node[font=\scriptsize, red!70!black, rotate=90] at (-1.45,1.5*\dt) {rand i rom: $U_0^n=0$};
+\node[font=\scriptsize, red!70!black, rotate=90] at (9.75,1.5*\dt) {rand i rom: $U_9^n=0$};
+\draw[decorate, decoration={brace, amplitude=4pt, mirror}, thick] (0.75,-0.95) -- (8.25,-0.95)
+  node[midway, below=5pt, font=\scriptsize] {initialverdier i tid: $U^0$ fra $f$, og $U^1$ fra $f$ og $g$};
+\begin{scope}[font=\scriptsize]
+  \node[init]  at (10.6,3*\dt) {};    \node[anchor=west] at (10.8,3*\dt)    {$U_i^0=f(x_i)$};
+  \node[start] at (10.6,2*\dt) {};    \node[anchor=west, align=left] at (10.8,2*\dt) {$U_i^1$: oppstart\\(Taylor)};
+  \node[leap]  at (10.6,1*\dt) {};    \node[anchor=west, align=left] at (10.8,1*\dt) {$U_i^{n+1}$: leapfrog};
+  \node[rand]  at (10.6,0) {};        \node[anchor=west, align=left] at (10.8,0) {rand: gitt\\(Dirichlet)};
+\end{scope}
+\end{tikzpicture}

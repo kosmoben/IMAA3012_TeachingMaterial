@@ -27,19 +27,23 @@ Bølgeligningen $u_{tt}=c^2u_{xx}$ er derimot \emph{andreordens i tid} -- ekspli
 
 \section{Utledning av skjemaet}
 
-\begin{frame}{Semi-diskretisering i rom -- som før}
-Bølgeligningen $u_{tt}=c^2u_{xx}$ på $[a,b]$, med $u(x,0)=f(x)$, $u_t(x,0)=g(x)$. Sentraldifferanse i rom ($x_i=a+i\Delta x$, $U_i(t)\approx u(x_i,t)$) gir semi-diskretiseringen
+\begin{frame}{Sentraldifferanser i både tid og rom}
+Bølgeligningen $u_{tt}=c^2u_{xx}$ på $[a,b]$, med $u(x,0)=f(x)$, $u_t(x,0)=g(x)$. Rutenett i rom \emph{og} tid: $x_i=a+i\Delta x$, $t_n=n\Delta t$, $U_i^n\approx u(x_i,t_n)$.
+
+\medskip
+I hvert gitterpunkt $(x_i,t_n)$: \emph{samme} sentraldifferanse, brukt i hver retning:
+\begin{align*}
+u_{tt}(x_i,t_n) &\approx \frac{U_i^{n+1}-2U_i^n+U_i^{n-1}}{\Delta t^2} && \text{(i tid, $x_i$ fast)}\\[0.3em]
+u_{xx}(x_i,t_n) &\approx \frac{U_{i+1}^n-2U_i^n+U_{i-1}^n}{\Delta x^2} && \text{(i rom, $t_n$ fast)}
+\end{align*}
+Kombiner via bølgeligningen $u_{tt}=c^2u_{xx}$:
 \[
-U_i''(t) = c^2\,\frac{U_{i+1}(t)-2U_i(t)+U_{i-1}(t)}{\Delta x^2}.
-\]
-Nå diskretiserer vi \emph{også} i tid -- med sentraldifferanse for \emph{annenderiverte} (samme formel som for $u_{xx}$, nå brukt på $t$):
-\[
-U_i''(t_n) \approx \frac{U_i^{n+1}-2U_i^n+U_i^{n-1}}{\Delta t^2}.
+\frac{U_i^{n+1}-2U_i^n+U_i^{n-1}}{\Delta t^2} = c^2\,\frac{U_{i+1}^n-2U_i^n+U_{i-1}^n}{\Delta x^2}.
 \]
 \end{frame}
 
 \begin{frame}{Leapfrog-metoden}
-Innsatt i semi-diskretiseringen, løst for $U_i^{n+1}$:
+Eneste ukjente er $U_i^{n+1}$. Multipliser med $\Delta t^2$, sett $r=c\Delta t/\Delta x$, og løs for $U_i^{n+1}$:
 \begin{oppsumb}{Leapfrog-metoden (hoppe-bukkmetoden)}
 \[
 U_i^{n+1} = 2U_i^n - U_i^{n-1} + r^2\big(U_{i+1}^n-2U_i^n+U_{i-1}^n\big), \qquad r = \frac{c\Delta t}{\Delta x}.
@@ -73,11 +77,29 @@ Med $U^0,U^1$ på plass: bruk leapfrog-formelen til å regne ut $U^2,U^3,\ldots$
 
 \begin{frame}{Randbetingelser}
 \begin{defnb}{Dirichlet-betingelser}
-$u(t,a),u(t,b)$ gitt (ev. tidsavhengige): sett $U_0^n,U_M^n$ lik disse i hvert tidssteg, bruk leapfrog-formelen kun for indre punkter $i=1,\ldots,M-1$.
+$u(a,t),u(b,t)$ gitt (ev. tidsavhengige): sett $U_0^n,U_M^n$ lik disse i hvert tidssteg (også $n=1$), og bruk \emph{både} oppstarten og leapfrog-formelen kun for indre punkter $i=1,\ldots,M-1$.
 \end{defnb}
 \begin{defnb}{Periodiske betingelser}
 Løsningen er periodisk med periode = hele området: $x=a$ og $x=b$ er \emph{samme} punkt. Bruk $M$ gitterpunkter $x_0,\ldots,x_{M-1}$, og identifiser indeksene \emph{modulo} $M$ ($U_{-1}^n\equiv U_{M-1}^n$, $U_M^n\equiv U_0^n$). Alle $M$ punktene oppdateres med samme formel -- ingen faste randpunkter.
 \end{defnb}
+\end{frame}
+
+\begin{frame}{Eksempel: en plukket gitarstreng}
+\centering
+\input{assets/leapfrog_gitar_a.tex}
+\begin{itemize}\small
+\item \textbf{Initialbetingelser (tid):} $u(x,0)=f(x)$ (trekant), $u_t(x,0)=g(x)=0$.
+\item \textbf{Randbetingelser (rom):} $u(0,t)=u(L,t)=0$ -- Dirichlet. 10 gitterpunkter, $M=9$.
+\item Initial-randverdiproblem: oppstarten og randbetingelsene er \emph{ikke} alternativer -- vi bruker begge.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Hvor kommer verdiene fra?}
+\centering
+\input{assets/leapfrog_gitar_b.tex}
+
+\vspace{0.3em}
+\small Oppstart og leapfrog brukes kun i de \emph{indre} punktene $i=1,\ldots,8$; randpunktene settes i hvert tidssteg.
 \end{frame}
 
 \begin{frame}{CFL-stabilitet}
