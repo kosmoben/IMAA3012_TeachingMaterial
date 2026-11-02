@@ -1,0 +1,441 @@
+\documentclass[11pt,aspectratio=169]{beamer}
+\usepackage{imaxbeamer}
+
+\title[F23 -- Endelig volum i 1D]{Forelesning 23\\ Endelig volum-metoden: kontrollvolum, flukser og 1D diffusjon}
+\subtitle{Kompendium §3.4 og første eksempel i §3.5}
+\author{IMAx3012 / IMAA3012 -- Matematikk 3B}
+\date{}
+
+\tikzset{
+  node1d/.style={circle, fill=black, inner sep=0pt, minimum size=1.8mm},
+  randpkt/.style={rectangle, draw=red!70!black, fill=red!30, inner sep=0pt, minimum size=2.4mm},
+}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{I dag}
+\begin{remb}{Hvor er vi?}
+F20--F22: \emph{endelige differanser} -- vi tilnærmet de \emph{deriverte} i punkter. Nå: \emph{endelig volum-metoden} (EVM) -- vi skriver opp \emph{bevaringsloven} for små celler.
+\end{remb}
+\begin{enumerate}
+\item Fra bevaringslov til integralform: kontrollvolum og divergenssetningen.
+\item 1D: gitter, notasjon og diskretisering $\Rightarrow$ $a_P\phi_P = a_W\phi_W + a_E\phi_E + S^u$.
+\item Randbetingelser: den halve randcellen.
+\item Eksempel: varmeledning i en stav (kompendiet, §3.5).
+\item EVM og endelige differanser -- likt og ulikt.
+\end{enumerate}
+\end{frame}
+
+\section{Idéen}
+
+\begin{frame}{Hvorfor en ny metode?}
+\begin{columns}[T]
+\begin{column}{0.49\textwidth}
+\textbf{Endelige differanser}
+\begin{itemize}
+\item Utgangspunkt: differensialligningen.
+\item Tilnærm $u'$, $u''$ i \emph{punkter}.
+\item Enkelt og raskt -- på pene, rektangulære gitre.
+\end{itemize}
+\end{column}
+\begin{column}{0.49\textwidth}
+\textbf{Endelig volum}
+\begin{itemize}
+\item Utgangspunkt: \emph{bevaringsloven} (F19).
+\item Balanser \emph{flukser} inn og ut av små \emph{celler}.
+\item Bevarer energi/masse også diskret; takler variable materialer og vilkårlige celleformer.
+\end{itemize}
+\end{column}
+\end{columns}
+\vspace{0.6em}
+\begin{remb}{I praksis}
+EVM er standardmetoden i strømnings- og varmeprogramvare (CFD), nettopp fordi bevaring er så viktig der.
+\end{remb}
+\end{frame}
+
+\begin{frame}{Transportligningen -- og det enkleste tilfellet}
+Mange bevaringslover kan skrives som en transportligning for en størrelse $\phi$ (temperatur, konsentrasjon, \ldots):
+\[
+\frac{\partial(\rho\phi)}{\partial t} + \nabla\cdot(\rho\phi\,\vect u) = \nabla\cdot(\Gamma\nabla\phi) + S_\phi .
+\]
+\begin{center}\small
+\begin{tabular}{cccc}
+endring i tid & $+$ \;netto utstrømning\; $=$ & diffusjon & $+$ \;kilder \\
+\end{tabular}
+\end{center}
+$\Gamma$ er \emph{diffusjonskoeffisienten} (for varme: varmeledningsevnen $\kappa$).
+
+\medskip
+I dag ser vi på det enkleste: \textbf{ren diffusjon, stasjonært} (ingen tid, ingen strømning):
+\begin{oppsumb}{Stasjonær diffusjon}
+\[
+\nabla\cdot(\Gamma\,\nabla\phi) + S = 0
+\]
+\end{oppsumb}
+\end{frame}
+
+\begin{frame}{Kontrollvolum og divergenssetningen}
+Integrer over et lite \emph{kontrollvolum} (KV) med overflate $A$ og utadrettet normal $\hat{\vect n}$, og bruk divergenssetningen:
+\[
+\iiint_{KV}\nabla\cdot(\Gamma\nabla\phi)\,dV + \iiint_{KV} S\,dV
+= \iint_{A}\hat{\vect n}\cdot(\Gamma\nabla\phi)\,dS + \iiint_{KV} S\,dV = 0 .
+\]
+\begin{oppsumb}{Fysisk tolkning}
+Diffusiv fluks ut gjennom overflaten minus fluks inn \;$=$\; det som produseres inne i KV.\\
+Det er bevaringsloven -- skrevet opp for \emph{hvert} kontrollvolum.
+\end{oppsumb}
+\begin{remb}{Hele metoden i én setning}
+Del området i celler. Integrer over hver celle. Tilnærm fluksene over celleflatene. Løs ligningssystemet.
+\end{remb}
+\end{frame}
+
+\section{EVM i 1D}
+
+\begin{frame}{1D: celler, noder og flater}
+Stasjonær 1D-diffusjon: $\dfrac{d}{dx}\left(\Gamma\dfrac{d\phi}{dx}\right) + S = 0$ på et intervall mellom randene $V$ og $H$.
+\begin{center}
+\begin{tikzpicture}[x=1.25cm]
+\fill[gray!20] (4,-0.35) rectangle (6,0.35);
+\draw[thick] (0,0) -- (10,0);
+\foreach \x in {0,10} \draw[very thick] (\x,-0.5) -- (\x,0.5);
+\foreach \x in {2,4,6,8} \draw[dashed] (\x,-0.45) -- (\x,0.45);
+\foreach \x in {1,3,5,7,9} \node[node1d] at (\x,0) {};
+\node[randpkt] at (0,0) {}; \node[randpkt] at (10,0) {};
+\node[left=4pt] at (0,0) {$V$}; \node[right=4pt] at (10,0) {$H$};
+\node[above=6pt, font=\small] at (5,0.3) {kontrollvolum (celle)};
+\draw[<-] (5,-0.12) -- (5,-0.8) node[below, font=\small] {node midt i cellen};
+\draw[<-] (6,-0.48) -- (7,-0.95) node[right, font=\small] {flate midt mellom to noder};
+\end{tikzpicture}
+\end{center}
+\begin{enumerate}
+\item Plasser noder mellom $V$ og $H$.
+\item Legg cellegrensene (\emph{flatene}) midt mellom nabonodene. Hver node er omgitt av sin celle.
+\item Randene $V$ og $H$ faller sammen med celleflater.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Notasjon}
+\begin{center}
+\begin{tikzpicture}[x=1.35cm]
+\fill[gray!20] (2.5,-0.25) rectangle (5.5,0.25);
+\draw[thick] (0,0) -- (8,0);
+\draw[dashed] (2.5,-0.3) -- (2.5,0.3); \draw[dashed] (5.5,-0.3) -- (5.5,0.3);
+\node[node1d] (W) at (1,0) {}; \node[node1d] (P) at (4,0) {}; \node[node1d] (E) at (7,0) {};
+\node[below=4pt] at (1,0) {$W$}; \node[below=4pt] at (4,0) {$P$}; \node[below=4pt] at (7,0) {$E$};
+\node[below=4pt] at (2.5,-0.25) {$w$}; \node[below=4pt] at (5.5,-0.25) {$e$};
+\draw[<->] (1,1.0) -- (4,1.0) node[midway, above] {$\delta x_{WP}$};
+\draw[<->] (4,1.0) -- (7,1.0) node[midway, above] {$\delta x_{PE}$};
+\draw[<->] (2.5,0.5) -- (5.5,0.5) node[midway, above, fill=white, inner sep=1pt] {$\delta x$};
+\end{tikzpicture}
+\end{center}
+\begin{itemize}
+\item Store bokstaver = \textbf{noder}: $P$ (den vi ser på), $W$ (vest), $E$ (øst).
+\item Små bokstaver = \textbf{flater}: $w$ og $e$.
+\item Senketegn = verdi i punktet: $\phi_P$, $\Gamma_e$, \ldots
+\item Uniformt gitter: $\delta x_{WP}=\delta x_{PE}=\delta x$ (cellebredden).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Steg 2: integrer over cellen rundt $P$}
+\begin{center}
+\begin{tikzpicture}[x=1.3cm]
+\fill[gray!20] (2.5,-0.4) rectangle (5.5,0.4);
+\draw[thick] (0,0) -- (8,0);
+\draw[dashed] (2.5,-0.45) -- (2.5,0.45); \draw[dashed] (5.5,-0.45) -- (5.5,0.45);
+\node[node1d] at (1,0) {}; \node[node1d] at (4,0) {}; \node[node1d] at (7,0) {};
+\node[below=4pt] at (1,0) {$W$}; \node[below=4pt] at (4,0) {$P$}; \node[below=4pt] at (7,0) {$E$};
+\draw[->, very thick, red!70!black] (1.9,0.65) -- (3.1,0.65) node[above, midway, font=\small] {fluks over $w$};
+\draw[->, very thick, red!70!black] (4.9,0.65) -- (6.1,0.65) node[above, midway, font=\small] {fluks over $e$};
+\node[font=\small] at (4,0.65) {$S$};
+\end{tikzpicture}
+\end{center}
+Integralet av $\frac{d}{dx}(\cdot)$ over cellen er bare differansen mellom flatene:
+\[
+\iiint_{KV}\frac{d}{dx}\!\left(\Gamma\frac{d\phi}{dx}\right)dV + \iiint_{KV} S\,dV
+= \left(\Gamma A\frac{d\phi}{dx}\right)_e - \left(\Gamma A\frac{d\phi}{dx}\right)_w + \overline S\,\Delta V = 0 .
+\]
+\begin{remb}{Problemet}
+Vi trenger $\Gamma$ og $\dfrac{d\phi}{dx}$ på \emph{flatene} $e$ og $w$ -- men vi kjenner (og leter etter) $\phi$ bare i \emph{nodene}.
+\end{remb}
+\end{frame}
+
+\begin{frame}{Tilnærming av fluksene: rett linje mellom nodene}
+\begin{columns}[c]
+\begin{column}{0.42\textwidth}
+\begin{tikzpicture}[x=1.1cm, y=1cm]
+\draw[->] (0,0) -- (4.3,0) node[right] {$x$};
+\draw[->] (0,0) -- (0,2.6) node[above] {$\phi$};
+\draw[dashed, gray] (2,0) -- (2,2.4) node[above, black] {$e$};
+\draw[thick, blue!70!black] (1,0.9) -- (3,2.0);
+\fill (1,0.9) circle (2pt) node[left] {$\phi_P$};
+\fill (3,2.0) circle (2pt) node[right] {$\phi_E$};
+\draw (1,0.05) -- (1,-0.05) node[below] {$P$};
+\draw (3,0.05) -- (3,-0.05) node[below] {$E$};
+\node[font=\small, blue!70!black, anchor=north west] at (2.15,1.15) {stigning $\frac{\phi_E-\phi_P}{\delta x_{PE}}$};
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.56\textwidth}
+\begin{oppsumb}{Sentral tilnærming}
+\small
+\[
+\left(\Gamma A\frac{d\phi}{dx}\right)_e \approx \Gamma_e A_e\frac{\phi_E-\phi_P}{\delta x_{PE}}
+\]
+\[
+\left(\Gamma A\frac{d\phi}{dx}\right)_w \approx \Gamma_w A_w\frac{\phi_P-\phi_W}{\delta x_{WP}}
+\]
+Uniformt gitter: $\Gamma_e=\frac{\Gamma_P+\Gamma_E}{2}$, $\Gamma_w=\frac{\Gamma_W+\Gamma_P}{2}$.
+\end{oppsumb}
+\end{column}
+\end{columns}
+\medskip
+Kilden skrives på lineær form: $\overline S\,\Delta V = S^u + S_P\phi_P$ \;(mer om dette i F24).
+\end{frame}
+
+\begin{frame}{Den diskrete ligningen}
+Setter vi inn tilnærmingene:
+\[
+\Gamma_eA_e\frac{\phi_E-\phi_P}{\delta x_{PE}} - \Gamma_wA_w\frac{\phi_P-\phi_W}{\delta x_{WP}} + S^u + S_P\phi_P = 0 .
+\]
+Samle $\phi_P$ på venstre side:
+\begin{oppsumb}{EVM-ligningen for celle $P$}
+\[
+a_P\,\phi_P = a_W\,\phi_W + a_E\,\phi_E + S^u,
+\quad
+a_W = \frac{\Gamma_wA_w}{\delta x_{WP}},\ \ a_E = \frac{\Gamma_eA_e}{\delta x_{PE}},\ \ a_P = a_W + a_E - S_P .
+\]
+\end{oppsumb}
+\begin{itemize}
+\item $a_W$, $a_E$ er \emph{ledningsevner}: hvor lett $\phi$ strømmer mellom $P$ og naboen.
+\item Én slik ligning per celle $\Rightarrow$ et \emph{tridiagonalt} ligningssystem.
+\item $S_P\le 0$ gjør $a_P$ større, og systemet «snillere».
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Bevaring er innebygd}
+\begin{center}
+\begin{tikzpicture}[x=1.2cm]
+\foreach \i in {0,...,3} \fill[gray!\the\numexpr 12+6*\i\relax] (2*\i,-0.35) rectangle (2*\i+2,0.35);
+\draw[thick] (0,0) -- (8,0);
+\foreach \x in {0,2,4,6,8} \draw[dashed] (\x,-0.4) -- (\x,0.4);
+\foreach \x in {1,3,5,7} \node[node1d] at (\x,0) {};
+\foreach \x in {0,2,4,6,8} \draw[->, very thick, red!70!black] (\x-0.45,0.65) -- (\x+0.45,0.65);
+\foreach \x/\l in {0/Q_0,2/Q_1,4/Q_2,6/Q_3,8/Q_4} \node[above=1pt, font=\small] at (\x,0.75) {$\l$};
+\end{tikzpicture}
+\end{center}
+\begin{itemize}
+\item Fluksen $Q_i$ over en flate regnes ut med \emph{samme} formel fra begge sider: det som går ut av én celle, går \emph{nøyaktig} inn i neste.
+\item Summer vi ligningene for alle cellene, kansellerer alle de indre fluksene:
+\[
+Q_{\text{ut}} - Q_{\text{inn}} = \sum_{\text{celler}} \overline S\,\Delta V .
+\]
+\end{itemize}
+\begin{remb}{Konservativ metode}
+Den diskrete løsningen oppfyller bevaringsloven \emph{eksakt} -- for hele området og for hver celle -- uansett hvor grovt gitteret er.
+\end{remb}
+\end{frame}
+
+\begin{frame}{Steg 3: randbetingelser -- den halve randcellen}
+\begin{center}
+\begin{tikzpicture}[x=1.3cm]
+\fill[gray!20] (0,-0.35) rectangle (2,0.35);
+\draw[thick] (0,0) -- (5,0);
+\draw[very thick] (0,-0.5) -- (0,0.5); \draw[dashed] (2,-0.45) -- (2,0.45); \draw[dashed] (4,-0.45) -- (4,0.45);
+\node[randpkt] at (0,0) {}; \node[left=4pt] at (0,0) {$V$};
+\node[node1d] at (1,0) {}; \node[below=4pt] at (1,0) {$P$};
+\node[node1d] at (3,0) {}; \node[below=4pt] at (3,0) {$E$};
+\draw[<->] (0,0.7) -- (1,0.7) node[midway, above] {$\delta x/2$};
+\draw[<->] (1,0.7) -- (3,0.7) node[midway, above] {$\delta x$};
+\end{tikzpicture}
+\end{center}
+Randen $V$ \emph{er} vestflaten. Fluksen dit tilnærmes lineært mellom $T_V$ og $P$ -- over en \emph{halv} celle:
+\[
+\Gamma A\frac{\phi_E-\phi_P}{\delta x} - \Gamma A\frac{\phi_P-\phi_V}{\delta x/2} = 0 .
+\]
+\begin{oppsumb}{Randcelle med kjent verdi $\phi_V$: «kutt koblingen»}
+\[
+a_W = 0, \qquad S^u = \frac{2\Gamma A}{\delta x}\,\phi_V, \qquad S_P = -\frac{2\Gamma A}{\delta x}
+\]
+Randverdien bakes inn som et kildeledd -- formen $a_P\phi_P = a_W\phi_W + a_E\phi_E + S^u$ er uendret.
+\end{oppsumb}
+\end{frame}
+
+\section{Eksempel}
+
+\begin{frame}{Eksempel: varmeledning i en stav uten kilde}
+\begin{center}
+\begin{tikzpicture}[x=1.1cm]
+\fill[gray!20] (2,-0.3) rectangle (4,0.3);
+\draw[thick] (0,0) -- (10,0);
+\foreach \x in {0,2,4,6,8,10} \draw[thick] (\x,0.3) -- (\x,-0.3);
+\foreach \x/\n in {1/1,3/2,5/3,7/4,9/5} { \node[node1d] at (\x,0) {}; \node[above=4pt] at (\x,0.05) {$\n$}; }
+\node[left=3pt] at (0,0) {$V$}; \node[right=3pt] at (10,0) {$H$};
+\node[below=6pt, font=\small] at (0,-0.3) {$T_V=100\,^\circ$C};
+\node[below=6pt, font=\small] at (10,-0.3) {$T_H=500\,^\circ$C};
+\draw[<->] (0,-1.05) -- (10,-1.05) node[midway, below] {$L=0.5$ m};
+\end{tikzpicture}
+\end{center}
+\[
+\frac{d}{dx}\left(\kappa\frac{dT}{dx}\right)=0, \qquad \kappa = 1000~\tfrac{\text{W}}{\text{m\,K}}, \quad A = 10\cdot10^{-3}~\text{m}^2 .
+\]
+Fem celler: $\delta x = 0.1$ m, noder i $x = 0.05, 0.15, \ldots, 0.45$, og
+\[
+\frac{\kappa A}{\delta x} = \frac{1000\cdot 0.01}{0.1} = 100 .
+\]
+\end{frame}
+
+\begin{frame}{Koeffisientene og ligningssystemet}
+\begin{columns}[c]
+\begin{column}{0.44\textwidth}
+\centering\footnotesize
+\begin{tabular}{cccccc}
+\toprule
+Node & $a_W$ & $a_E$ & $S^u$ & $S_P$ & $a_P$ \\
+\midrule
+1 & 0 & 100 & $200T_V$ & $-200$ & 300 \\
+2 & 100 & 100 & 0 & 0 & 200 \\
+3 & 100 & 100 & 0 & 0 & 200 \\
+4 & 100 & 100 & 0 & 0 & 200 \\
+5 & 100 & 0 & $200T_H$ & $-200$ & 300 \\
+\bottomrule
+\end{tabular}
+\end{column}
+\begin{column}{0.54\textwidth}
+\footnotesize
+\setlength{\arraycolsep}{3pt}
+\[
+\begin{bmatrix}
+300 & -100 & & & \\
+-100 & 200 & -100 & & \\
+ & -100 & 200 & -100 & \\
+ & & -100 & 200 & -100 \\
+ & & & -100 & 300
+\end{bmatrix}
+\begin{bmatrix} T_1\\T_2\\T_3\\T_4\\T_5 \end{bmatrix}
+=
+\begin{bmatrix} 200T_V\\0\\0\\0\\200T_H \end{bmatrix}
+\]
+\end{column}
+\end{columns}
+\vspace{0.6em}
+\begin{itemize}
+\item Diagonal: $a_P$. Under: $-a_W$. Over: $-a_E$. Høyreside: $S^u$.
+\item Tridiagonal -- hver celle kobler bare til sine to naboer.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Løsningen}
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
+\includegraphics[width=\textwidth]{assets/stav_losning.png}
+\end{column}
+\begin{column}{0.43\textwidth}
+\[
+T_1,\ldots,T_5 = 140,\ 220,\ 300,\ 380,\ 460
+\]
+Eksakt: $T(x)=100+800x$ -- \emph{samme} verdier i nodene.
+\begin{remb}{Hvorfor eksakt?}
+Vi tilnærmet fluksene med \emph{rette linjer} mellom nodene. Er $T$ selv en rett linje, er tilnærmingen eksakt.
+\end{remb}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Sjekk: like stor fluks gjennom hver flate}
+Fluksen $Q=-\kappa A\,\dfrac{dT}{dx}$, regnet ut på hver flate (randflatene med $\delta x/2$):
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+Flate ($x$ i m) & 0.0 & 0.1 & 0.2 & 0.3 & 0.4 & 0.5 \\
+\midrule
+$Q$ (W) & $-8000$ & $-8000$ & $-8000$ & $-8000$ & $-8000$ & $-8000$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item Eksakt: $Q = -\kappa A\cdot 800 = -10\cdot 800 = -8000$ W (varmen går fra den varme høyre enden mot venstre).
+\item Ingen varmekilde $\Rightarrow$ like mye varme gjennom hver flate. EVM får dette \emph{eksakt}, per konstruksjon.
+\end{itemize}
+\end{frame}
+
+\section{EVM og endelige differanser}
+
+\begin{frame}{EVM og endelige differanser: likt og ulikt}
+Konstant $\Gamma$, $A$ og uniformt gitter: $a_W=a_E=\Gamma A/\delta x$, og for en indre celle
+\[
+\Gamma A\frac{\phi_E-2\phi_P+\phi_W}{\delta x} + \overline S A\,\delta x = 0
+\quad\Longleftrightarrow\quad
+\Gamma\frac{\phi_E-2\phi_P+\phi_W}{\delta x^2} + \overline S = 0
+\]
+-- \emph{akkurat} sentraldifferanseformelen fra F20!
+\begin{columns}[T]
+\begin{column}{0.49\textwidth}
+\textbf{Likt}
+\begin{itemize}
+\item Indre ligninger (enkle tilfeller).
+\item Tridiagonalt system, samme løsere (direkte, Jacobi, Gauss-Seidel).
+\end{itemize}
+\end{column}
+\begin{column}{0.49\textwidth}
+\textbf{Ulikt}
+\begin{itemize}
+\item Utgangspunkt: bevaringsloven $\Rightarrow$ eksakt diskret bevaring.
+\item Noder midt i cellene $\Rightarrow$ halv randcelle.
+\item Variabel $\Gamma$, ikke-uniforme gitre, vilkårlige celler.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Utblikk: en stav av to materialer}
+\begin{columns}[c]
+\begin{column}{0.56\textwidth}
+\includegraphics[width=\textwidth]{assets/to_materialer.png}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+Venstre halvdel $\kappa_1=1000$, høyre $\kappa_2=100$; 10 celler. Grenseflaten er en celleflate.
+\begin{itemize}
+\item Aritmetisk $\kappa_e$: feil opptil $23\,^\circ$C.
+\item \emph{Harmonisk} $\kappa_e=\dfrac{2\kappa_P\kappa_E}{\kappa_P+\kappa_E}$: eksakt!
+\end{itemize}
+\begin{remb}{Hvorfor?}
+Varmen går gjennom to halve celler etter hverandre -- to seriekoblede «motstander». Å tenke i \emph{flukser over flater} gir svaret direkte.
+\end{remb}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Oppsummering}
+\begin{oppsumb}{Endelig volum-metoden, steg for steg}
+\begin{enumerate}
+\item \textbf{Gitter:} del området i celler; noder i midten, flater midt mellom nodene, randene på flater.
+\item \textbf{Diskretiser:} integrer over hver celle (divergenssetningen) og tilnærm fluksene lineært:
+\[
+a_P\phi_P = a_W\phi_W + a_E\phi_E + S^u, \qquad a_P = a_W + a_E - S_P .
+\]
+Randceller: kutt koblingen og legg randbidraget i $S^u$, $S_P$.
+\item \textbf{Løs} det (tridiagonale) ligningssystemet.
+\end{enumerate}
+\end{oppsumb}
+\begin{itemize}
+\item Metoden er \emph{konservativ}: fluksen ut av én celle er fluksen inn i neste.
+\item Kode: \texttt{F23\_EVM\_1D\_Diffusjon.ipynb}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Neste gang: F24 -- kildeledd og andre randbetingelser}
+\begin{nestefb}
+\begin{itemize}
+\item Kildeledd: $\overline S\,\Delta V = S^u + S_P\phi_P$ -- og hvorfor $S_P\le 0$.
+\item Eksempler fra kompendiet: plate med varmeproduksjon, og ribbe som kjøles av luft.
+\item Isolert rand og kjent fluks (Neumann).
+\item Koding: vi utvider F23-løseren.
+\end{itemize}
+\end{nestefb}
+\end{frame}
+
+\end{document}
