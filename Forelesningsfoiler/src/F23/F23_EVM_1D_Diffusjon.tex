@@ -22,7 +22,8 @@
 F20--F22: \emph{endelige differanser} -- vi tilnærmet de \emph{deriverte} i punkter. Nå: \emph{endelig volum-metoden} (EVM) -- vi skriver opp \emph{bevaringsloven} for små celler.
 \end{remb}
 \begin{enumerate}
-\item Fra bevaringslov til integralform: kontrollvolum og divergenssetningen.
+\item Hvorfor endelig volum? Transportligningen -- én ligning for mange fysiske lover.
+\item Fra bevaringslov på integralform til PDE, og tilbake: divergenssetningen.
 \item 1D: gitter, notasjon og diskretisering $\Rightarrow$ $a_P\phi_P = a_W\phi_W + a_E\phi_E + S^u$.
 \item Randbetingelser: den halve randcellen.
 \item Eksempel: varmeledning i en stav (kompendiet, §3.5).
@@ -44,53 +45,108 @@ F20--F22: \emph{endelige differanser} -- vi tilnærmet de \emph{deriverte} i pun
 \end{column}
 \begin{column}{0.49\textwidth}
 \textbf{Endelig volum}
-\begin{itemize}
-\item Utgangspunkt: \emph{bevaringsloven} (F19).
-\item Balanser \emph{flukser} inn og ut av små \emph{celler}.
-\item Bevarer energi/masse også diskret; takler variable materialer og vilkårlige celleformer.
+\begin{itemize}\small
+\item Utgangspunkt: \emph{bevaringsloven} (F19), på integralform.
+\item \textbf{Bevaring innebygd:} fluks ut av én celle = fluks inn i neste.
+\item \textbf{Vilkårlig geometri:} celler av alle former.
+\item \textbf{Hopp:} materialgrenser, sjokk -- integralformen gir mening uten deriverte.
+\item \textbf{Fysisk tolkning:} flukser og kilder.
 \end{itemize}
 \end{column}
 \end{columns}
-\vspace{0.6em}
+\vspace{0.3em}
 \begin{remb}{I praksis}
-EVM er standardmetoden i strømnings- og varmeprogramvare (CFD), nettopp fordi bevaring er så viktig der.
+\small EVM er standardmetoden i strømningsprogramvare (CFD: OpenFOAM, Ansys Fluent). Prisen: litt mer bokføring.
 \end{remb}
 \end{frame}
 
-\begin{frame}{Transportligningen -- og det enkleste tilfellet}
-Mange bevaringslover kan skrives som en transportligning for en størrelse $\phi$ (temperatur, konsentrasjon, \ldots):
+\begin{frame}{Utledning: bevaring for et fast kontrollvolum}
+$\phi$ = størrelse \emph{per masseenhet} ($\phi=1$: masse, $\phi=u$: bevegelsesmengde, $\phi=i$: indre energi), $\rho\phi$ = per volum. Fast kontrollvolum $KV$, overflate $\partial KV$, utadrettet normal $\hat{\vect n}$, strømning $\vect u$. Tre måter $\phi$ kan endre seg på:
+\begin{itemize}
+\item \textbf{Konveksjon:} føres med strømmen, fluks $\rho\phi\,\vect u$.
+\item \textbf{Diffusjon:} sprer seg fra høyt til lavt, fluks $-\Gamma\nabla\phi$ (Fourier, Fick).
+\item \textbf{Kilder:} produseres med rate $S_\phi$ per volum.
+\end{itemize}
+\begin{oppsumb}{Bevaringsloven på integralform}
+\small
 \[
-\frac{\partial(\rho\phi)}{\partial t} + \nabla\cdot(\rho\phi\,\vect u) = \nabla\cdot(\Gamma\nabla\phi) + S_\phi .
-\]
-\begin{center}\small
-\begin{tabular}{cccc}
-endring i tid & $+$ \;netto utstrømning\; $=$ & diffusjon & $+$ \;kilder \\
-\end{tabular}
-\end{center}
-$\Gamma$ er \emph{diffusjonskoeffisienten} (for varme: varmeledningsevnen $\kappa$).
-
-\medskip
-I dag ser vi på det enkleste: \textbf{ren diffusjon, stasjonært} (ingen tid, ingen strømning):
-\begin{oppsumb}{Stasjonær diffusjon}
-\[
-\nabla\cdot(\Gamma\,\nabla\phi) + S = 0
+\underbrace{\frac{d}{dt}\iiint_{KV}\!\rho\phi\,dV}_{\text{økning i } KV}
++ \underbrace{\iint_{\partial KV}\!\hat{\vect n}\cdot(\rho\phi\,\vect u)\,dS}_{\text{netto ut ved konveksjon}}
+= \underbrace{\iint_{\partial KV}\!\hat{\vect n}\cdot(\Gamma\nabla\phi)\,dS}_{\text{netto inn ved diffusjon}}
++ \underbrace{\iiint_{KV}\!S_\phi\,dV}_{\text{produksjon}}
 \]
 \end{oppsumb}
 \end{frame}
 
-\begin{frame}{Kontrollvolum og divergenssetningen}
-Integrer over et lite \emph{kontrollvolum} (KV) med overflate $A$ og utadrettet normal $\hat{\vect n}$, og bruk divergenssetningen:
+\begin{frame}{Fra integralform til transportligningen}
+Divergenssetningen på de to flateintegralene ($KV$ ligger fast, så $\frac{d}{dt}$ kan flyttes inn):
 \[
-\iiint_{KV}\nabla\cdot(\Gamma\nabla\phi)\,dV + \iiint_{KV} S\,dV
-= \iint_{A}\hat{\vect n}\cdot(\Gamma\nabla\phi)\,dS + \iiint_{KV} S\,dV = 0 .
+\iiint_{KV}\left[\frac{\partial(\rho\phi)}{\partial t} + \nabla\cdot(\rho\phi\,\vect u) - \nabla\cdot(\Gamma\nabla\phi) - S_\phi\right]dV = 0
+\quad\text{for \emph{alle} } KV
 \]
-\begin{oppsumb}{Fysisk tolkning}
-Diffusiv fluks ut gjennom overflaten minus fluks inn \;$=$\; det som produseres inne i KV.\\
-Det er bevaringsloven -- skrevet opp for \emph{hvert} kontrollvolum.
+$\Rightarrow$ integranden er null:
+\begin{oppsumb}{Transportligningen}
+\[
+\frac{\partial(\rho\phi)}{\partial t} + \nabla\cdot(\rho\phi\,\vect u) = \nabla\cdot(\Gamma\nabla\phi) + S_\phi
+\]
 \end{oppsumb}
+\begin{remb}{Materialderivert (Euler vs.\ Lagrange)}
+Med massebevaring blir venstresiden $\rho\dfrac{D\phi}{Dt}$, der $\dfrac{D\phi}{Dt}=\dfrac{\partial\phi}{\partial t}+\vect u\cdot\nabla\phi$ er endringen for en \emph{væskepartikkel}. EVM bruker den konservative formen.
+\end{remb}
+\end{frame}
+
+\begin{frame}{Én ligning -- mange fysiske lover}
+Velg $\phi$, $\Gamma$ og $S_\phi$:
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{cccl}
+\toprule
+$\phi$ & $\Gamma$ & $S_\phi$ & Ligning \\
+\midrule
+$1$ & $0$ & $0$ & Massebevaring (kontinuitet) \\
+$u$ ($v$, $w$) & $\mu$ & $-\frac{\partial p}{\partial x} + S_{Mx}$ & Navier--Stokes ($S$ = krefter) \\
+$i$ & $k/c_v$ & $-p\,\nabla\!\cdot\vect u + \Phi + S_i$ & Energi ($S$ = arbeid + varme) \\
+$T$ ($\vect u=\vect 0$) & $\kappa/c$ & $S/c$ & Varmeligningen fra F19 \\
+$Y$ (massefraksjon) & $\rho D$ & reaksjoner & Spredning av et stoff (forurensning) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item Navier--Stokes = Newtons 2.\ lov for væsken; energiligningen = termodynamikkens 1.\ lov.
+\item Systemet lukkes med tilstandsligninger, f.eks.\ $p=\rho RT$ og $i=c_vT$ (ideell gass).
+\item \emph{Én} numerisk metode for transportligningen dekker alt dette.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{EVM: integrer over hver celle}
+EVM går \emph{den motsatte veien}: del området i celler, integrer transportligningen over hver celle, og bruk divergenssetningen:
+\begin{oppsumb}{Utgangspunktet for EVM}
+\[
+\frac{\partial}{\partial t}\iiint_{KV}\!\rho\phi\,dV + \iint_{\partial KV}\!\hat{\vect n}\cdot(\rho\phi\,\vect u)\,dS
+= \iint_{\partial KV}\!\hat{\vect n}\cdot(\Gamma\nabla\phi)\,dS + \iiint_{KV}\!S_\phi\,dV
+\]
+\end{oppsumb}
+-- bevaringsloven igjen, nå for \emph{hver celle}. Metoden: tilnærm fluksene over celleflatene og kildene i cellene.
 \begin{remb}{Hele metoden i én setning}
 Del området i celler. Integrer over hver celle. Tilnærm fluksene over celleflatene. Løs ligningssystemet.
 \end{remb}
+\end{frame}
+
+\begin{frame}{Det enkleste tilfellet: ren, stasjonær diffusjon}
+Ingen tidsavhengighet og ingen strømning ($\vect u=\vect 0$):
+\begin{oppsumb}{Stasjonær diffusjon}
+\[
+\nabla\cdot(\Gamma\,\nabla\phi) + S = 0
+\qquad\Longrightarrow\qquad
+\iint_{\partial KV}\hat{\vect n}\cdot(\Gamma\nabla\phi)\,dS + \iiint_{KV} S\,dV = 0 .
+\]
+\end{oppsumb}
+\begin{itemize}
+\item Diffusiv fluks \emph{inn} gjennom overflaten + produksjon inne i KV $=0$.
+\item F23--F26: ren diffusjon i 1D (i dag og F24), 2D (F25) og med tid (F26).
+\item Konveksjonsleddet (og dermed Navier--Stokes) behandles med de samme ideene, men er utenfor pensum.
+\end{itemize}
 \end{frame}
 
 \section{EVM i 1D}
@@ -263,6 +319,50 @@ Randverdien bakes inn som et kildeledd -- formen $a_P\phi_P = a_W\phi_W + a_E\ph
 \end{oppsumb}
 \end{frame}
 
+\begin{frame}{Generelt: konstant $\Gamma A$ og fast $\delta x$ -- en tridiagonal matrise}
+\small
+Med $N$ celler, kjent $\phi_V$ og $\phi_H$ og ingen kilde. Kall $c = \dfrac{\Gamma A}{\delta x}$:
+\begin{columns}[c]
+\begin{column}{0.44\textwidth}
+\centering\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{cccccc}
+\toprule
+Node & $a_W$ & $a_E$ & $S^u$ & $S_P$ & $a_P$ \\
+\midrule
+$1$ & $0$ & $c$ & $2c\,\phi_V$ & $-2c$ & $3c$ \\
+$2,\ldots,N-1$ & $c$ & $c$ & $0$ & $0$ & $2c$ \\
+$N$ & $c$ & $0$ & $2c\,\phi_H$ & $-2c$ & $3c$ \\
+\bottomrule
+\end{tabular}
+\end{column}
+\begin{column}{0.54\textwidth}
+\footnotesize
+\setlength{\arraycolsep}{2.5pt}
+\[
+c\begin{bmatrix}
+\textcolor{red!70!black}{3} & -1 & & & \\
+-1 & 2 & -1 & & \\
+ & \ddots & \ddots & \ddots & \\
+ & & -1 & 2 & -1 \\
+ & & & -1 & \textcolor{red!70!black}{3}
+\end{bmatrix}
+\begin{bmatrix} \phi_1\\ \phi_2\\ \vdots\\ \phi_{N-1}\\ \phi_N \end{bmatrix}
+=
+c\begin{bmatrix} \textcolor{red!70!black}{2}\phi_V\\ 0\\ \vdots\\ 0\\ \textcolor{red!70!black}{2}\phi_H \end{bmatrix}
+\]
+\end{column}
+\end{columns}
+\vspace{0.3em}
+\begin{itemize}
+\item \textbf{Tridiagonal:} hver celle kobler bare til sine to naboer. Indre rader: $-1,\ 2,\ -1$ -- som sentraldifferansen i F20.
+\end{itemize}
+\begin{remb}{Hvorfor faktoren $2$ (og $3$) på randene?}
+Randen ligger bare $\delta x/2$ fra den ytterste noden, så ledningsevnen dit er $\frac{\Gamma A}{\delta x/2} = 2c$. Den gir $S^u = 2c\,\phi_V$ og $S_P=-2c$, og diagonalen $a_P = a_E - S_P = c + 2c = 3c$.\\
+I koden: \texttt{dx[0]} $=\delta x/2$, så \texttt{kA/dx[0]} $=2c$.
+\end{remb}
+\end{frame}
+
 \section{Eksempel}
 
 \begin{frame}{Eksempel: varmeledning i en stav uten kilde}
@@ -344,6 +444,40 @@ Vi tilnærmet fluksene med \emph{rette linjer} mellom nodene. Er $T$ selv en ret
 \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{I koden: som i øvingene}
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\begin{lstb}[Python-kode]
+\begin{lstlisting}
+x = np.array([0, 0.05, 0.15, 0.25, 0.35, 0.45, 0.5])
+m = len(x) - 2         # antall ukjente
+kA = 10
+a, b = 100, 500        # T_V og T_H
+dx = x[1:] - x[:-1]
+
+L = kA*(-np.diag((1/dx)[1:-1], 1)
+        - np.diag(1/dx[1:-1], -1)
+        + np.diag(1/dx[1:], 0)
+        + np.diag(1/dx[:-1], 0))
+F = np.zeros((m))
+F[0]  = kA*1/dx[0]*a
+F[-1] = kA*1/dx[-1]*b
+u = la.solve(L, F)
+\end{lstlisting}
+\end{lstb}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+\begin{itemize}
+\item \texttt{x}: \emph{alle} punkter, randpunktene først og sist. Nodene er \texttt{x[1:-1]}.
+\item \texttt{dx}: avstand til nabopunktet. Ytterst: \texttt{dx[0]} $=\delta x/2$.
+\item Randpunktet er en kjent nabo: $\frac{kA}{\delta x/2} = \frac{2kA}{\delta x}$ -- akkurat kompendiets $S^u$ og $S_P$.
+\item Punktene trenger ikke ligge jevnt -- formlene er de samme.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
 \begin{frame}{Sjekk: like stor fluks gjennom hver flate}
 Fluksen $Q=-\kappa A\,\dfrac{dT}{dx}$, regnet ut på hver flate (randflatene med $\delta x/2$):
 \begin{center}
@@ -390,7 +524,7 @@ Konstant $\Gamma$, $A$ og uniformt gitter: $a_W=a_E=\Gamma A/\delta x$, og for e
 \end{columns}
 \end{frame}
 
-\begin{frame}{Utblikk: en stav av to materialer}
+\begin{frame}{Utblikk: en stav av to materialer \hfill {\small\color{red}\textbf{(Ikke pensum)}}}
 \begin{columns}[c]
 \begin{column}{0.56\textwidth}
 \includegraphics[width=\textwidth]{assets/to_materialer.png}

@@ -17,11 +17,15 @@ og forskjellene ligger bare i hvilke naboer, kilder og randbidrag som inngår.
 
 Kompendium: **§3.4** (hele) og **§3.5, eksempel «Varmeledning i en stav uten kildeledd»**.
 
-**Teori (45–90 min)**
-- Motivasjon: fra F19 (varmeligningen fra energibevaring) — bevaringslover på
-  integralform. Transportligningen for $\phi$ (i ord) → ren, stasjonær diffusjon.
-- Kontrollvolum og divergenssetningen: $\iiint_{KV}\nabla\cdot(\Gamma\nabla\phi)\,dV = \iint_A \hat n\cdot\Gamma\nabla\phi\,dS$
-  → «fluks ut minus fluks inn = produksjon».
+**Teori (90 min anbefalt; ev. 45 min + koding)**
+- Hvorfor endelig volum (fremfor endelige differanser): innebygd bevaring,
+  vilkårlig geometri, hopp/diskontinuiteter, fysisk tolkning (CFD-standard).
+- Utledning av transportligningen fra bevaring for et fast kontrollvolum
+  (konveksjon, diffusjon, kilder) → integralform → (Gauss) → PDE. Kort om materialderivert.
+- Én ligning, mange lover: massebevaring, Navier–Stokes, energi, varmeligningen,
+  stoffspredning — ved ulike valg av $\phi$, $\Gamma$, $S_\phi$.
+- EVM går motsatt vei: integrer over hver celle (Gauss) → bevaringsloven per celle.
+  Snevrer inn til ren, stasjonær diffusjon: «fluks ut minus fluks inn = produksjon».
 - 1D: gitter (noder midt i cellene, flater midt mellom noder), notasjon $W,P,E$ og $w,e$.
 - Diskretisering: lineær tilnærming av fluksen på flatene → $a_P\phi_P = a_W\phi_W + a_E\phi_E + S^u$.
 - Randbetingelse med kjent verdi: halv celle ($\delta x/2$), «kutt koblingen» og bak
@@ -52,11 +56,26 @@ Kompendium: **§3.5**, eksemplene «Varmeledning med internt kildeledd» og
   går inn i $S_P$.
 - Isolert rand / kjent fluks (Neumann): fluksen på randflaten er kjent → $a_E=0$ og $S^u \mathrel{+}= q_BA$.
 
-**Kode (≥ 45 min):** `JupyterFiler/F24_EVM_1D_Kilder_Randbetingelser.ipynb` (lages)
-- Utvid F23-løseren med kildeledd ($S^u$, $S_P$ per celle) og fluksrand.
-- Reproduser plate-eksempelet; konvergensstudie (feil mot $\delta x$).
-- NB: ribbe-eksempelet er tema for `EVM_oppgave.ipynb` (øving 7), så her bør vi
-  stoppe ved oppsettet, eller bruke en annen variant (f.eks. annen $n$ eller fluksrand).
+**Kode (≥ 45 min):** `JupyterFiler/F24_EVM_1D_Kilder_Randbetingelser.ipynb`
+- Plate-eksempelet «for hånd» i øvingenes stil (`koeff_diag`, `koeff_over`,
+  `koeff_under`, `L`, `F`, `la.solve(L, F)`), deretter en generell `evm_1d` med
+  kildeledd og randtype `"T"` eller `"fluks"`.
+- Konvergens: avviket er nøyaktig $q\,\delta x^2/(8k)$ ⇒ andre orden.
+- Kjent fluks / isolert rand, med eksakt energibalanse.
+- Hvorfor $S_P\le0$: Jacobi med sluk i $S_P$ konvergerer, med sluk i $S^u$ divergerer den ($\beta=25$).
+- Ribben (øving 7) settes ikke opp; notatboken peker til `EVM_oppgave.ipynb`.
+
+**Kodestil:** alle EVM-notatbøkene (F23–F26) følger øvingenes kode (øving 6–7,
+`EVM_oppgave.ipynb`, «Volummetode 1D laplace» i `PDE.ipynb`):
+`import numpy.linalg as la`; alle punkter i `x` med randpunktene først og sist
+(nodene er `x[1:-1]`, `m = len(x) - 2`); `dx = x[1:] - x[:-1]`; randverdier `a`, `b`;
+matrisen `L` (med `koeff_diag`/`koeff_over`/`koeff_under` eller på én linje med `np.diag`),
+høyreside `F` med `F[0] = kA/dx[0]*a`, og `u = la.solve(L, F)`. Kompendiets halve
+randcelle er da bare at `dx[0] = deltax/2`, så `kA/dx[0] = 2kA/deltax`.
+
+**F25:** øving 7a ber studentene gjøre 2D-differansekoden fra øving 6 (matrise med
+`np.kron`, se F21 avsnitt 3) om til volummetoden med uniformt gitter. F25-notatboken
+bør derfor bygge på nøyaktig den koden. (Øving 7b, Voronoi, er utenfor pensum.)
 
 ---
 
