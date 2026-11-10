@@ -267,7 +267,58 @@ Alle indre koblinger:
 \end{columns}
 \end{frame}
 
-\begin{frame}{Koeffisientene}
+\begin{frame}{Utledning av koeffisientene: indre celle og randcelle}
+\footnotesize
+Integrer over cellen og tilnærm fluksene (alle indre koblinger er $\kappa A/\delta = 10$, $\overline S = 0$):
+\[
+\kappa A_e\Big(\frac{\partial T}{\partial x}\Big)_e - \kappa A_w\Big(\frac{\partial T}{\partial x}\Big)_w + \kappa A_n\Big(\frac{\partial T}{\partial y}\Big)_n - \kappa A_s\Big(\frac{\partial T}{\partial y}\Big)_s = 0
+\]
+\textbf{Indre celle} (celle 5): alle fire flater ligger mot naboceller.
+\begin{gather*}
+10(T_E - T_P) - 10(T_P - T_W) + 10(T_N - T_P) - 10(T_P - T_S) = 0
+\\
+\Longrightarrow\quad 40\,T_P = 10\,T_W + 10\,T_E + 10\,T_S + 10\,T_N
+\end{gather*}
+\textbf{Randcelle ved vestveggen} (celle 4): flaten $w$ ligger i veggen, der fluksen inn er \emph{kjent}: $-\kappa A_w(\partial T/\partial x)_w = q_VA_w = 500$.
+\begin{gather*}
+10(T_E - T_P) + {\color{red}500} + 10(T_N - T_P) - 10(T_P - T_S) = 0
+\\
+\Longrightarrow\quad 30\,T_P = {\color{red}0}\cdot T_W + 10\,T_E + 10\,T_S + 10\,T_N + {\color{red}500}
+\end{gather*}
+\begin{remb}{Les av}
+Celle 5: $a_W=a_E=a_S=a_N=10$, $S^u=S_P=0$, $a_P=40$. \quad
+Celle 4: $a_W={\color{red}0}$, $S^u={\color{red}500}$, $S_P=0$, $a_P=30$.
+\end{remb}
+\end{frame}
+
+\begin{frame}{Utledning av koeffisientene: nordvegg og hjørne}
+\footnotesize
+\textbf{Randcelle ved nordveggen} (celle 11): flaten $n$ ligger i veggen med \emph{kjent temperatur} $T_N = 100$, i avstand $\delta y/2$:
+\[
+10(T_E - T_P) - 10(T_P - T_W) + {\color{red}\frac{\kappa A_n}{\delta y/2}(100 - T_P)} - 10(T_P - T_S) = 0, \qquad \frac{\kappa A_n}{\delta y/2} = 20
+\]
+\[
+\Longrightarrow\quad (30 {\color{red}\,+\, 20})\,T_P = 10\,T_W + 10\,T_E + 10\,T_S + {\color{red}0}\cdot T_N + {\color{red}2000}
+\qquad (S_P = {\color{red}-20},\ S^u = {\color{red}2000})
+\]
+\textbf{Hjørnecelle nordvest} (celle 10): \emph{to} flater i veggen -- kjent fluks på $w$ \emph{og} kjent temperatur på $n$:
+\begin{gather*}
+10(T_E - T_P) + {\color{red}500} + {\color{red}20(100 - T_P)} - 10(T_P - T_S) = 0
+\\
+\Longrightarrow\quad (20 {\color{red}\,+\, 20})\,T_P = 10\,T_E + 10\,T_S + {\color{red}2500}
+\end{gather*}
+\textbf{Hjørnecelle sørvest} (celle 1): kjent fluks på $w$, isolert på $s$ (bidrar med $0$):
+\begin{gather*}
+10(T_E - T_P) + {\color{red}500} + 10(T_N - T_P) - {\color{red}0} = 0
+\\
+\Longrightarrow\quad 20\,T_P = 10\,T_E + 10\,T_N + {\color{red}500}
+\end{gather*}
+\begin{remb}{Mønsteret}
+Hver vegg kutter én kobling. Kjent temperatur gir et bidrag til både $S_P$ og $S^u$, kjent fluks bare til $S^u$, isolert vegg ingenting.
+\end{remb}
+\end{frame}
+
+\begin{frame}{Koeffisientene for alle cellene}
 \centering\small
 \begin{tabular}{lccccccc}
 \toprule
