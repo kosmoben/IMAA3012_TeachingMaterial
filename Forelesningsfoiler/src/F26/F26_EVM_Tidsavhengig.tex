@@ -22,7 +22,7 @@ a_P\phi_P = \sum_{\text{naboer}} a_{nb}\,\phi_{nb} + S^u, \qquad a_P = \sum_{\te
 \begin{enumerate}
 \item Integrer over kontrollvolumet \emph{og} over et tidsintervall.
 \item Eksplisitt skjema -- med samme $L$ og $F$ som i det stasjonære problemet.
-\item Stabilitet: koeffisienten foran $T_P^n$ må være positiv.
+\item Stabilitet: et fysisk krav om et vektet gjennomsnitt -- ikke bare matematikk.
 \item Eksempel: avkjøling av en plate (kompendiet).
 \item 2D, og (til orientering) implisitte skjema.
 \item Oppsummering av kapittel 3.
@@ -89,6 +89,40 @@ T_P^{n+1} = T_P^n + r\big(T_E^n - 2T_P^n + T_W^n\big),
 
 \section{Stabilitet}
 
+\begin{frame}{Et vektet gjennomsnitt -- et fysisk krav}
+Ingenting i algebraen hindrer oss i å velge et vilkårlig $\Delta t$: ligningen gir et tall uansett, stort eller lite. Kravet vi nå utleder kommer derfor \emph{ikke} fra matematikken alene, men fra at vi \emph{krever} at skjemaet oppfører seg som ekte varmeledning.
+\begin{center}
+\begin{tikzpicture}[font=\small,>=Stealth,scale=0.8]
+\begin{scope}
+  \node[anchor=east,font=\small\bfseries] at (-3.0,0) {Stabilt ($r=0.3$)};
+  \fill[green!12] (0,-0.12) rectangle (2,0.12);
+  \draw[very thick] (-2.6,0) -- (2.6,0);
+  \filldraw (0,0) circle (1.6pt); \filldraw (2,0) circle (1.6pt);
+  \node[above,font=\scriptsize] at (0,0.15) {$T_W^n{=}T_E^n{=}0$};
+  \node[above,font=\scriptsize] at (2,0.15) {$T_P^n{=}100$};
+  \draw[->,green!55!black,thick] (2,-0.15) .. controls (1.4,-0.6) and (1.2,-0.6) .. (0.8,-0.15);
+  \filldraw[green!55!black] (0.8,0) circle (1.6pt);
+  \node[below,font=\scriptsize,green!40!black] at (0.8,-0.6) {$T_P^{n+1}{=}40$};
+\end{scope}
+\begin{scope}[shift={(0,-2.1)}]
+  \node[anchor=east,font=\small\bfseries] at (-3.0,0) {Ustabilt ($r=1$)};
+  \fill[green!12] (0,-0.12) rectangle (2,0.12);
+  \draw[very thick] (-2.6,0) -- (2.6,0);
+  \filldraw (0,0) circle (1.6pt); \filldraw (2,0) circle (1.6pt);
+  \node[above,font=\scriptsize] at (0,0.15) {$T_W^n{=}T_E^n{=}0$};
+  \node[above,font=\scriptsize] at (2,0.15) {$T_P^n{=}100$};
+  \draw[->,red,thick] (2,-0.15) .. controls (1,-1.0) and (-1,-1.0) .. (-2,-0.15);
+  \filldraw[red] (-2,0) circle (1.6pt);
+  \node[below,font=\scriptsize,red] at (-2,-1.0) {$T_P^{n+1}{=}-100$};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+\begin{itemize}
+\item Et \emph{gjennomsnitt} kan aldri havne utenfor tallene det bygger på -- akkurat som ekte varmeledning.
+\item Negativ vekt $\Rightarrow$ cellen kan skyte forbi likevekten: fysisk meningsløst, selv om platen bare avkjøles.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Stabilitet: koeffisienten foran $T_P^n$ må være positiv}
 \begin{columns}[c]
 \begin{column}{0.53\textwidth}
@@ -100,6 +134,7 @@ T_P^{n+1} = \tfrac{a_W}{a_P^0}T_W^n + \tfrac{a_E}{a_P^0}T_E^n + \tfrac{a_P^0 - a
 \begin{itemize}
 \item Positive vekter: et \emph{vektet gjennomsnitt} -- ingen nye maksima eller minima.
 \item Negativ vekt foran $T_P^n$: jo varmere nå, jo kaldere neste steg $\Rightarrow$ svingninger.
+\item Ikke en matematisk nødvendighet -- ligningen har en løsning uansett $\Delta t$.
 \end{itemize}
 \begin{oppsumb}{Krav i hver celle}
 \[
@@ -269,6 +304,54 @@ På matriseform:
 
 \section{Oppsummering av kapittel 3}
 
+\begin{frame}{Kart over kapittel 3: numeriske metoder og løsere}
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+  every node/.style={align=center,font=\footnotesize},
+  box/.style={draw,rounded corners,very thick,fill=blue!4,inner sep=5pt},
+  meth/.style={draw,rounded corners,thick,fill=orange!6,inner sep=5pt,text width=5cm},
+  solv/.style={draw,rounded corners,thick,fill=green!6,inner sep=4pt,text width=3.4cm},
+  time/.style={draw,rounded corners,thick,fill=purple!5,inner sep=4pt,text width=3.4cm},
+  ->,>=Stealth,thick
+]
+
+\node[box,text width=6cm,font=\bfseries] (pde) at (0,0) {PDE \(\to\) diskretiser i rom};
+
+\node[meth] (fd) at (-5,-2.4) {\textbf{Endelige differanser}\\ \footnotesize approksimerer deriverte punktvis (F20--F22)};
+\node[meth] (evm) at (5,-2.4) {\textbf{Endelig volum-metode}\\ \footnotesize diskretiserer bevaringsloven i integralform (F23--F26)};
+
+\draw (pde) -- (fd);
+\draw (pde) -- (evm);
+
+\node[box,text width=8cm] (system) at (0,-4.8) {\'En koblet ligning per node/celle:\\ $a_P\phi_P=\textstyle\sum a_{nb}\phi_{nb}+S^u$};
+
+\draw (fd) -- (system);
+\draw (evm) -- (system);
+
+\node[solv] (stat) at (-6.6,-7.3) {\textbf{Stasjonært (RVP)}\\ \footnotesize ett samlet ligningssystem};
+\node[time] (tid) at (4.6,-7.3) {\textbf{Tidsavhengig (IVP i tid)}\\ \footnotesize semi-diskretisering \(\to\) ODE-system};
+
+\draw (system) -- (stat);
+\draw (system) -- (tid);
+
+\node[solv] (direkte) at (-8.5,-9.8) {Direkte\\ \footnotesize Gauss-eliminasjon};
+\node[solv] (iter) at (-4.7,-9.8) {Iterativt\\ \footnotesize Jacobi / Gauss--Seidel\\ (krever $S_P\le0$)};
+
+\draw (stat) -- (direkte);
+\draw (stat) -- (iter);
+
+\node[time] (eksp) at (0.8,-9.8) {\textbf{Eksplisitt Euler}\\ \footnotesize marsjer direkte\\ betinget stabil ($r\le\ldots$)\\ {\scriptsize\itshape $t\to\infty$: samme likevekt som RVP}};
+\node[time] (imp) at (4.6,-9.8) {\textbf{Implisitt Euler}\\ \footnotesize ubetinget stabil\\ ligningssystem \emph{hvert} steg\\ {\scriptsize\itshape løses som i stasjonært tilfelle}};
+\node[time] (leap) at (8.4,-9.8) {\textbf{Leapfrog}\\ \footnotesize bølgeligningen, 2 nivåer};
+
+\draw (tid) -- (eksp);
+\draw (tid) -- (imp);
+\draw (tid) -- (leap);
+
+\end{tikzpicture}}
+\end{frame}
+
 \begin{frame}{Oppsummering: numeriske metoder for PDE-er}
 \begin{columns}[t]
 \begin{column}{0.49\textwidth}
@@ -285,8 +368,8 @@ Laplace, Poisson, stasjonær varmeledning.
 Varmeligningen, bølgeligningen.
 \begin{itemize}
 \item Marsjer i tid fra initialverdien.
-\item Eksplisitte skjema krever lite nok $\Delta t$:\\
-varme $r\le\frac12$ (1D), $r\le\frac14$ (2D); \; bølge $c\Delta t/\Delta x\le 1$.
+\item Eksplisitt: krever lite nok $\Delta t$ ($r\le\frac12$ i 1D, $r\le\frac14$ i 2D; bølge $c\Delta t/\Delta x\le1$).
+\item Implisitt: ubetinget stabilt, men ett ligningssystem per tidssteg.
 \end{itemize}
 \end{oppsumb}
 \end{column}

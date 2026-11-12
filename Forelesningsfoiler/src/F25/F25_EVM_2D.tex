@@ -197,7 +197,7 @@ og $L_n$ ($n\times n$) med $\delta y$. Flatearealene gir vektene:
 \[
 L = k\,t\,\Big(\underbrace{\delta y\;I_n\otimes L_m}_{W,\,E \text{ i hver rad}} \;+\; \underbrace{\delta x\;L_n\otimes I_m}_{S,\,N \text{ i hver kolonne}}\Big)
 \]
-Diagonal ($\delta x=\delta y$): indre $2+2=4$, rand $3+2=5$, hjørne $3+3=6$.\\[1mm] \textbf{Nøyaktig samme $L$ og $F$ som løkken} (sjekket i notatboken).
+Diagonal ($\delta x=\delta y$): indre $2+2=4$, rand $3+2=5$, hjørne $3+3=6$.\\[1mm] \textbf{Nøyaktig samme $L$ og $F$} som når vi går gjennom cellene én for én.
 \end{column}
 \begin{column}{0.51\textwidth}
 \begin{lstb}[Python-kode]
@@ -285,10 +285,23 @@ Integrer over cellen og tilnærm fluksene (alle indre koblinger er $\kappa A/\de
 \\
 \Longrightarrow\quad 30\,T_P = {\color{red}0}\cdot T_W + 10\,T_E + 10\,T_S + 10\,T_N + {\color{red}500}
 \end{gather*}
-\begin{remb}{Les av}
-Celle 5: $a_W=a_E=a_S=a_N=10$, $S^u=S_P=0$, $a_P=40$. \quad
-Celle 4: $a_W={\color{red}0}$, $S^u={\color{red}500}$, $S_P=0$, $a_P=30$.
+\vspace{-1mm}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{remb}{Celle 5 (indre)}
+$a_W=a_E=a_S=a_N=10$\\
+$S^u=0$, \quad $S_P=0$\\
+$a_P = a_W+a_E+a_S+a_N-S_P = 40$
 \end{remb}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{remb}{Celle 4 (vestvegg, kjent fluks)}
+$a_W={\color{red}0}$, \quad $a_E=a_S=a_N=10$\\
+$S^u={\color{red}500}$, \quad $S_P=0$\\
+$a_P = a_W+a_E+a_S+a_N-S_P = 30$
+\end{remb}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Utledning av koeffisientene: nordvegg og hjørne}
